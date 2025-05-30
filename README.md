@@ -4,8 +4,7 @@
 A mobile application converts temperatures between Fahrenheit and Celsius and displays the conversion history.
 
 ## Features
-- Fahrenheit to Celsius conversion
-- Celsius to Fahrenheit conversion
+- Fahrenheit to Celsius/Celsius to Fahrenheit conversions
 - Input validation
 - Conversion history
 - Responsive design (Portait/Landscape)
