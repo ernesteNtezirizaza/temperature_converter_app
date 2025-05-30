@@ -51,115 +51,129 @@ class _ConversionScreenState extends State<ConversionScreen> {
         ),
         backgroundColor: Colors.blue[800],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Conversion:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - 16, // subtract padding
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Conversion:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  // Radio buttons
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: 'Fahrenheit to Celsius',
+                            groupValue: _selectedConversion,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedConversion = value!;
+                              });
+                            },
+                          ),
+                          const Text('Fahrenheit to Celsius'),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: 'Celsius to Fahrenheit',
+                            groupValue: _selectedConversion,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedConversion = value!;
+                              });
+                            },
+                          ),
+                          const Text('Celsius to Fahrenheit'),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Responsive input area
+                  if (constraints.maxWidth > 600) 
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _buildInputWidgets(true),
+                    )
+                  else 
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _buildInputWidgets(false),
+                    ),
+                  // Spacer to push content up
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            // Inlined radio buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 24,
-                  child: Radio<String>(
-                    value: 'Fahrenheit to Celsius',
-                    groupValue: _selectedConversion,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedConversion = value!;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  'Fahrenheit to Celsius',
-                  style: TextStyle(fontSize: 14),
-                ),
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 24,
-                  child: Radio<String>(
-                    value: 'Celsius to Fahrenheit',
-                    groupValue: _selectedConversion,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedConversion = value!;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Text(
-                  'Celsius to Fahrenheit',
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 120,
-                  child: TextField(
-                    controller: _temperatureController,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Temperature',
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                    ),
-                    onChanged: (value) {
-                      if (value.isEmpty) {
-                        setState(() {
-                          _result = '';
-                        });
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 100,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[800],
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(double.infinity, 48),
-                    ),
-                    onPressed: _convertTemperature,
-                    child: const Text('Convert'),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: _result.isEmpty ? Colors.transparent : Colors.grey),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      _result.isEmpty ? '' : '${_result}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
+  }
+
+  List<Widget> _buildInputWidgets(bool isWide) {
+    return [
+      SizedBox(
+        width: isWide ? 200 : double.infinity,
+        child: TextField(
+          controller: _temperatureController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Temperature',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+          ),
+          onChanged: (value) {
+            if (value.isEmpty) {
+              setState(() {
+                _result = '';
+              });
+            }
+          },
+        ),
+      ),
+      SizedBox(height: isWide ? 0 : 8, width: isWide ? 8 : 0),
+      SizedBox(
+        width: isWide ? 150 : double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.blue[800],
+            foregroundColor: Colors.white,
+            minimumSize: const Size(double.infinity, 48),
+          ),
+          onPressed: _convertTemperature,
+          child: const Text('Convert'),
+        ),
+      ),
+      SizedBox(height: isWide ? 0 : 8, width: isWide ? 8 : 0),
+      Container(
+        width: isWide ? 150 : double.infinity,
+        height: 48,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: _result.isEmpty ? Colors.transparent : Colors.grey),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          _result.isEmpty ? '' : '$_result',
+          style: const TextStyle(fontSize: 16),
+        ),
+      ),
+    ];
   }
 
   @override
