@@ -13,8 +13,14 @@ class _ConversionScreenState extends State<ConversionScreen> {
   String _selectedConversion = 'Fahrenheit to Celsius';
   final TextEditingController _temperatureController = TextEditingController();
   String _result = '';
+  String? _errorText;
 
   void _convertTemperature() {
+    // Clear previous error
+    setState(() {
+      _errorText = null;
+    });
+
     if (_temperatureController.text.isEmpty) {
       setState(() {
         _result = '';
@@ -22,7 +28,18 @@ class _ConversionScreenState extends State<ConversionScreen> {
       return;
     }
 
-    final double inputTemp = double.tryParse(_temperatureController.text) ?? 0.0;
+    final input = _temperatureController.text;
+    final double? inputTemp = double.tryParse(input);
+
+    // Validate input
+    if (inputTemp == null) {
+      setState(() {
+        _errorText = 'Please enter a valid number';
+        _result = '';
+      });
+      return;
+    }
+
     double convertedTemp;
     String conversionText;
 
@@ -57,7 +74,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
             padding: const EdgeInsets.all(16.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - 16, // subtract padding
+                minHeight: constraints.maxHeight - 16,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +130,6 @@ class _ConversionScreenState extends State<ConversionScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: _buildInputWidgets(false),
                     ),
-                  // Spacer to push content up
                   const SizedBox(height: 20),
                 ],
               ),
@@ -130,16 +146,18 @@ class _ConversionScreenState extends State<ConversionScreen> {
         width: isWide ? 200 : double.infinity,
         child: TextField(
           controller: _temperatureController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
             labelText: 'Temperature',
-            border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+            errorText: _errorText,
           ),
           onChanged: (value) {
             if (value.isEmpty) {
               setState(() {
                 _result = '';
+                _errorText = null;
               });
             }
           },
