@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../utils/conversion_utils.dart';
 
+// ConversionScreen is a StatefulWidget that handles temperature conversion
 class ConversionScreen extends StatefulWidget {
+  // Callback function to add conversion results to history
   final Function(String) onAddToHistory;
   const ConversionScreen({super.key, required this.onAddToHistory});
 
@@ -10,17 +12,23 @@ class ConversionScreen extends StatefulWidget {
 }
 
 class _ConversionScreenState extends State<ConversionScreen> {
+  // Default conversion type
   String _selectedConversion = 'Fahrenheit to Celsius';
+  // Controller for temperature input field
   final TextEditingController _temperatureController = TextEditingController();
+  // Stores the conversion result
   String _result = '';
+  // Stores error message for input validation
   String? _errorText;
 
+  // Method to perform temperature conversion
   void _convertTemperature() {
     // Clear previous error
     setState(() {
       _errorText = null;
     });
 
+    // Return if input is empty
     if (_temperatureController.text.isEmpty) {
       setState(() {
         _result = '';
@@ -29,6 +37,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
     }
 
     final input = _temperatureController.text;
+    // Try to parse input as double
     final double? inputTemp = double.tryParse(input);
 
     // Validate input
@@ -43,6 +52,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
     double convertedTemp;
     String conversionText;
 
+    // Perform conversion based on selected type
     if (_selectedConversion == 'Fahrenheit to Celsius') {
       convertedTemp = ConversionUtils.fahrenheitToCelsius(inputTemp);
       conversionText = 'F to C: ${ConversionUtils.formatTemperature(inputTemp)} => ${ConversionUtils.formatTemperature(convertedTemp)}';
@@ -51,6 +61,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
       conversionText = 'C to F: ${ConversionUtils.formatTemperature(inputTemp)} => ${ConversionUtils.formatTemperature(convertedTemp)}';
     }
 
+    // Update result and add to history
     setState(() {
       _result = ConversionUtils.formatTemperature(convertedTemp);
     });
@@ -68,6 +79,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
         ),
         backgroundColor: Colors.blue[800],
       ),
+      // Using LayoutBuilder for responsive design
       body: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
@@ -84,7 +96,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  // Radio buttons
+                  // Radio buttons for conversion type selection
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -119,7 +131,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Responsive input area
+                  // Responsive layout - switches between row and column based on screen width
                   if (constraints.maxWidth > 600) 
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,8 +152,10 @@ class _ConversionScreenState extends State<ConversionScreen> {
     );
   }
 
+  // Helper method to build input widgets with responsive layout
   List<Widget> _buildInputWidgets(bool isWide) {
     return [
+      // Temperature input field
       SizedBox(
         width: isWide ? 200 : double.infinity,
         child: TextField(
@@ -163,7 +177,9 @@ class _ConversionScreenState extends State<ConversionScreen> {
           },
         ),
       ),
+      // Spacer - behaves differently in wide vs narrow layout
       SizedBox(height: isWide ? 0 : 8, width: isWide ? 8 : 0),
+      // Convert button
       SizedBox(
         width: isWide ? 150 : double.infinity,
         child: ElevatedButton(
@@ -176,7 +192,9 @@ class _ConversionScreenState extends State<ConversionScreen> {
           child: const Text('Convert'),
         ),
       ),
+      // Spacer - behaves differently in wide vs narrow layout
       SizedBox(height: isWide ? 0 : 8, width: isWide ? 8 : 0),
+      // Result display container
       Container(
         width: isWide ? 150 : double.infinity,
         height: 48,
@@ -196,6 +214,7 @@ class _ConversionScreenState extends State<ConversionScreen> {
 
   @override
   void dispose() {
+    // Clean up controller when widget is disposed
     _temperatureController.dispose();
     super.dispose();
   }
